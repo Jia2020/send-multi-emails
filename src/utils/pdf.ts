@@ -1,5 +1,6 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { SplitPdfPage, PdfDocumentMeta, GeneratedPdfBundle } from '../types';
 
 /**
@@ -83,8 +84,11 @@ export async function mergePagesToBundle(
 
 // Set up pdf.js worker for rendering canvas thumbnails
 if (typeof window !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
-  // Use a reliable worker CDN matching the pdfjs-dist version
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '4.10.38'}/pdf.worker.min.mjs`;
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl || `https://unpkg.com/pdfjs-dist@${pdfjsLib.version || '4.10.38'}/build/pdf.worker.min.mjs`;
+  } catch (e) {
+    console.warn('Failed to set pdfjs workerSrc:', e);
+  }
 }
 
 /**
