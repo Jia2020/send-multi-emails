@@ -8,7 +8,23 @@ export async function safeFetchJson<T = any>(
   options?: RequestInit
 ): Promise<{ ok: boolean; status: number; data: T | null; error?: string }> {
   try {
-    const res = await fetch(url, options);
+    const defaultHeaders: Record<string, string> = {
+      Accept: 'application/json',
+    };
+
+    if (options?.body && !options.headers) {
+      defaultHeaders['Content-Type'] = 'application/json';
+    }
+
+    const mergedOptions: RequestInit = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...(options?.headers || {}),
+      },
+    };
+
+    const res = await fetch(url, mergedOptions);
     const rawText = await res.text();
 
     let data: T | null = null;

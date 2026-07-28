@@ -42,10 +42,18 @@ async function startServer() {
     });
   });
 
-  // SMTP Connection Tester (supports multiple alias endpoints)
-  app.post(['/api/test-smtp', '/api/verify-smtp', '/api/connect-email', '/api/login-email'], async (req, res) => {
+  // SMTP Connection Tester (supports test-smtp, verify-smtp, connect-email, login-email)
+  const handleSmtpTest: express.RequestHandler = async (req, res) => {
+    if (req.method === 'GET') {
+      return res.json({
+        status: 'ok',
+        endpoint: 'SMTP connection tester',
+        usage: 'Send POST request with { user, pass, smtpHost, smtpPort } to test email login.',
+      });
+    }
+
     try {
-      const { smtpHost, smtpPort, secure, user, pass } = req.body;
+      const { smtpHost, smtpPort, secure, user, pass } = req.body || {};
 
       if (!user || !pass) {
         return res.status(400).json({
@@ -110,12 +118,29 @@ async function startServer() {
         error: clientMsg,
       });
     }
+  };
+
+  const smtpRoutes = [
+    '/api/test-smtp',
+    '/api/test-smtp/',
+    '/api/verify-smtp',
+    '/api/verify-smtp/',
+    '/api/connect-email',
+    '/api/connect-email/',
+    '/api/login-email',
+    '/api/login-email/',
+  ];
+  smtpRoutes.forEach((route) => {
+    app.all(route, handleSmtpTest);
   });
 
   // AI-assisted email subject and body generator endpoint
-  app.post('/api/ai-suggest-email', async (req, res) => {
+  app.all(['/api/ai-suggest-email', '/api/ai-suggest-email/'], async (req, res) => {
+    if (req.method === 'GET') {
+      return res.json({ status: 'ok', endpoint: 'AI Suggest Email' });
+    }
     try {
-      const { recipientEmail, recipientName, pageNumbers, textSnippet, fileName } = req.body;
+      const { recipientEmail, recipientName, pageNumbers, textSnippet, fileName } = req.body || {};
 
       if (!ai) {
         // Fallback generator when Gemini API key is not present
@@ -165,9 +190,12 @@ Return ONLY valid JSON with two fields:
   });
 
   // Real Email Dispatcher via Nodemailer
-  app.post('/api/send-email', async (req, res) => {
+  app.all(['/api/send-email', '/api/send-email/'], async (req, res) => {
+    if (req.method === 'GET') {
+      return res.json({ status: 'ok', endpoint: 'Send Email' });
+    }
     try {
-      const { sender, recipientEmail, subject, body, attachments } = req.body;
+      const { sender, recipientEmail, subject, body, attachments } = req.body || {};
 
       if (!recipientEmail) {
         return res.status(400).json({ success: false, error: 'Recipient email address is missing' });
