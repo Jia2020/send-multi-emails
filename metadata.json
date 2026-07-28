@@ -1,0 +1,8 @@
+{
+  "name": "Remix PDF Split \u0026 Email Dispatcher",
+  "description": "Split multi-page PDFs into single page documents, assign pages to email recipients via interactive drag and drop, and send or download them directly.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
