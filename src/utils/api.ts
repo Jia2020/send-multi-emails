@@ -1,4 +1,26 @@
 /**
+ * Safely converts any error object, string, or unknown thrown value into a clean display string
+ * preventing React Error #31 (Objects are not valid as a React child).
+ */
+export function toErrorString(val: any): string {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') {
+    if (typeof val.message === 'string') return val.message;
+    if (typeof val.error === 'string') return val.error;
+    if (val.message && typeof val.message === 'object') return toErrorString(val.message);
+    if (val.error && typeof val.error === 'object') return toErrorString(val.error);
+    try {
+      const json = JSON.stringify(val);
+      return json !== '{}' ? json : String(val);
+    } catch {
+      return String(val);
+    }
+  }
+  return String(val);
+}
+
+/**
  * Helper function to safely send fetch requests to backend API endpoints
  * and handle both JSON responses and unexpected HTML/non-JSON error pages safely
  * without throwing JSON SyntaxError ("Unexpected token 'T'...").
@@ -41,10 +63,11 @@ export async function safeFetchJson<T = any>(
 
     if (isJson && data) {
       if (!res.ok) {
-        const errorMsg =
-          (data as any)?.error ||
-          (data as any)?.message ||
-          `Server returned error status (${res.status})`;
+        const rawErr = (data as any)?.error ?? (data as any)?.message ?? (data as any)?.details;
+        let errorMsg = toErrorString(rawErr);
+        if (!errorMsg || errorMsg === '{}') {
+          errorMsg = `Server returned error status (${res.status})`;
+        }
         return {
           ok: false,
           status: res.status,
@@ -86,7 +109,7 @@ export async function safeFetchJson<T = any>(
       ok: false,
       status: 0,
       data: null,
-      error: err?.message || 'Network connection failed. Backend server may be offline.',
+      error: toErrorString(err?.message || err) || 'Network connection failed. Backend server may be offline.',
     };
   }
 }

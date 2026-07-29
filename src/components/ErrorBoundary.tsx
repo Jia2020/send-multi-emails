@@ -1,5 +1,6 @@
 import React, { ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { toErrorString } from '../utils/api';
 
 interface Props {
   children: ReactNode;
@@ -59,7 +60,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
             {error && (
               <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-left overflow-x-auto max-h-40">
-                <p className="text-xs font-mono text-red-400 font-semibold">{error.toString()}</p>
+                <p className="text-xs font-mono text-red-400 font-semibold">{toErrorString(error)}</p>
               </div>
             )}
 

@@ -3,7 +3,7 @@ import { Recipient, SplitPdfPage, DispatchLogItem, UserAccount } from '../types'
 import { X, Send, Sparkles, CheckCircle2, AlertCircle, ChevronRight, FileText, UserCheck, ShieldCheck, Key, Trash2, RotateCcw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { mergePagesToBundle, uint8ArrayToBase64 } from '../utils/pdf';
-import { safeFetchJson } from '../utils/api';
+import { safeFetchJson, toErrorString } from '../utils/api';
 
 interface DispatchModalProps {
   isOpen: boolean;
@@ -192,7 +192,8 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
             ...prev,
           ]);
         } else {
-          throw new Error(result.error || result.data?.error || 'Failed to send email');
+          const errMsg = toErrorString(result.error) || toErrorString(result.data?.error) || 'Failed to send email';
+          throw new Error(errMsg);
         }
       } catch (err: any) {
         setDispatchLogs((prev) => [
@@ -202,7 +203,7 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
             pageNumbers: r.assignedPages,
             timestamp: new Date().toLocaleTimeString(),
             status: 'failed',
-            message: `❌ Failed to send to ${r.email}: ${err?.message || 'Please check App Password'}`,
+            message: `❌ Failed to send to ${r.email}: ${toErrorString(err?.message || err) || 'Please check App Password'}`,
             subject: subj,
             bodyPreview: bodyText,
             attachments: [],

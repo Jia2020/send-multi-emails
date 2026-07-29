@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserAccount } from '../types';
-import { safeFetchJson } from '../utils/api';
+import { safeFetchJson, toErrorString } from '../utils/api';
 import { Mail, User, ShieldCheck, Check, Server, Key, RefreshCw, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 interface EmailLoginModalProps {
@@ -110,7 +110,7 @@ export const EmailLoginModal: React.FC<EmailLoginModalProps> = ({
           message: result.data.message || 'SMTP test successful! Ready to dispatch emails.',
         });
       } else {
-        const errorDetail = result.error || result.data?.error || 'SMTP authentication failed. Please verify 2-Step Verification and 16-character App Password.';
+        const errorDetail = toErrorString(result.error) || toErrorString(result.data?.error) || 'SMTP authentication failed. Please verify 2-Step Verification and 16-character App Password.';
         setTestStatus({
           success: false,
           message: errorDetail,
@@ -119,7 +119,7 @@ export const EmailLoginModal: React.FC<EmailLoginModalProps> = ({
     } catch (err: any) {
       setTestStatus({
         success: false,
-        message: err?.message || 'Could not connect to backend server. Please verify network connection.',
+        message: toErrorString(err?.message || err) || 'Could not connect to backend server. Please verify network connection.',
       });
     } finally {
       setIsTesting(false);
