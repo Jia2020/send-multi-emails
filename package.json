@@ -1,0 +1,17 @@
+{
+  "name": "pdf-split-mail",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/index.js",
+    "build": "cd client && npm install && npm run build",
+    "vercel-build": "cd client && npm install && npm run build"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemailer": "^9.0.5"
+  }
+}

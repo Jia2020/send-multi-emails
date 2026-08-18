@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remix PDF Split & Email Dispatcher</title>
+    <script>
+      (function() {
+        try {
+          var nativeFetch = window.fetch ? window.fetch.bind(window) : null;
+          var customFetch = nativeFetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return customFetch || nativeFetch;
+            },
+            set: function(val) {
+              customFetch = val;
+            },
+            configurable: true,
+            enumerable: true
+          });
+          if (typeof globalThis !== 'undefined' && globalThis !== window) {
+            try {
+              Object.defineProperty(globalThis, 'fetch', {
+                get: function() {
+                  return customFetch || nativeFetch;
+                },
+                set: function(val) {
+                  customFetch = val;
+                },
+                configurable: true,
+                enumerable: true
+              });
+            } catch (e) {}
+          }
+        } catch (e) {
+          console.warn('Fetch guard initialized with notice:', e);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
